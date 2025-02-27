@@ -1,0 +1,27 @@
+﻿services:
+  auctions:
+    container_name: auctions_app
+    image: auctions
+    build:
+      context: .
+      dockerfile: Auctions/Dockerfile
+    environment:
+      ConnectionString__DefaultConnection: ""
+    
+    depends_on:
+      - db
+  db:
+    container_name: auctions_db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: auctionsDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -10,11 +10,7 @@ namespace Auctions.Features.Auth.Login;
 
 
 //TODO добавить валидацию
-public sealed record LoginRequest
-{
-    public required string Email { get; init; }
-    public required string Password { get; init; }
-}
+public sealed record LoginRequest(string Email, string Password);
 
 public class Login : Endpoint<LoginRequest, Results<NotFound, UnauthorizedHttpResult, Ok>>
 {

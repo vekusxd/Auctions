@@ -9,6 +9,10 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {  }
+    
+    public DbSet<Lot> Lots { get; set; }
+    public DbSet<LotCategory> LotCategories { get; set; }
+    public DbSet<Bid> Bids { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -21,6 +25,5 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
         modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("UserClaims");
         modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens");
         modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("RoleClaims");
-        
     }
 }

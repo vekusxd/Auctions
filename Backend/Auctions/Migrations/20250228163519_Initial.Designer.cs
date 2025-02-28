@@ -12,18 +12,145 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Auctions.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250227213912_init")]
-    partial class init
+    [Migration("20250228163519_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "8.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Auctions.Database.Entities.Bid", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("BidderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("LotId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BidderId");
+
+                    b.HasIndex("LotId");
+
+                    b.ToTable("Bids", (string)null);
+                });
+
+            modelBuilder.Entity("Auctions.Database.Entities.Lot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("CurrentPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(-1)
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImgUrl")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<Guid>("LotCategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("PriceStep")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("SellerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("StartPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LotCategoryId");
+
+                    b.HasIndex("SellerId");
+
+                    b.ToTable("Lots", (string)null);
+                });
+
+            modelBuilder.Entity("Auctions.Database.Entities.LotCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(-1)
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LotCategories", (string)null);
+                });
 
             modelBuilder.Entity("Auctions.Database.Entities.User", b =>
                 {
@@ -236,6 +363,44 @@ namespace Auctions.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Auctions.Database.Entities.Bid", b =>
+                {
+                    b.HasOne("Auctions.Database.Entities.User", "Bidder")
+                        .WithMany("Bids")
+                        .HasForeignKey("BidderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Auctions.Database.Entities.Lot", "Lot")
+                        .WithMany("Bids")
+                        .HasForeignKey("LotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bidder");
+
+                    b.Navigation("Lot");
+                });
+
+            modelBuilder.Entity("Auctions.Database.Entities.Lot", b =>
+                {
+                    b.HasOne("Auctions.Database.Entities.LotCategory", "LotCategory")
+                        .WithMany("Lots")
+                        .HasForeignKey("LotCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Auctions.Database.Entities.User", "Seller")
+                        .WithMany("Lots")
+                        .HasForeignKey("SellerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LotCategory");
+
+                    b.Navigation("Seller");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -285,6 +450,23 @@ namespace Auctions.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Auctions.Database.Entities.Lot", b =>
+                {
+                    b.Navigation("Bids");
+                });
+
+            modelBuilder.Entity("Auctions.Database.Entities.LotCategory", b =>
+                {
+                    b.Navigation("Lots");
+                });
+
+            modelBuilder.Entity("Auctions.Database.Entities.User", b =>
+                {
+                    b.Navigation("Bids");
+
+                    b.Navigation("Lots");
                 });
 #pragma warning restore 612, 618
         }

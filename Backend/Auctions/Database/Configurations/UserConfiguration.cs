@@ -22,5 +22,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .Property(u => u.LastName)
             .HasMaxLength(50)
             .IsRequired();
+
+        builder
+            .HasMany(u => u.Lots)
+            .WithOne(l => l.Seller)
+            .HasForeignKey(l => l.SellerId);
+
+        builder
+            .HasMany(u => u.Bids)
+            .WithOne(b => b.Bidder)
+            .HasForeignKey(b => b.BidderId);
     }
 }

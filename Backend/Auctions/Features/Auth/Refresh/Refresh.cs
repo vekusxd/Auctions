@@ -75,5 +75,6 @@ public class Refresh : EndpointWithoutRequest<Results<Ok, UnauthorizedHttpResult
     public override void Configure()
     {
         Post("/account/refresh");
+        AllowAnonymous();
     }
 }

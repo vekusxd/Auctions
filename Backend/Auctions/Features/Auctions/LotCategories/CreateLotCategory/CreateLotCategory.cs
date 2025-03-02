@@ -4,7 +4,10 @@ using FastEndpoints;
 
 namespace Auctions.Features.Auctions.LotCategories.CreateLotCategory;
 
-public record CreateLotCategoryRequest(string Title, string? Description);
+public record CreateLotCategoryRequest(
+    string Title,
+    string? Description
+);
 
 public record CreateLotCategoryResponse(Guid Id, string Title, string Description);
 
@@ -32,4 +35,3 @@ public class CreateLotCategory : Endpoint<CreateLotCategoryRequest, CreateLotCat
             new GetLotCategoryDetailsRequest(entity.Id), Map.FromEntity(entity), cancellation: ct);
     }
 }
-

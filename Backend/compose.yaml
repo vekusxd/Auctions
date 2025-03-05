@@ -7,7 +7,7 @@
       dockerfile: Auctions/Dockerfile
     environment:
       ConnectionString__DefaultConnection: ""
-    
+
     depends_on:
       - db
   db:
@@ -23,5 +23,19 @@
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  s3Storage:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9099:9099"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - storage-minio:/data
+    command: server --address ":9099" --console-address ":9000" /data
+    restart: always
+
 volumes:
   postgres_data:
+  storage-minio:

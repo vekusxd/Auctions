@@ -10,18 +10,16 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace Auctions.Features.Auth.Common.Services;
 
-public record AuthTokenProcessorResponse(string JwtToken, DateTime ExpiresAt);
+public record AuthTokenProcessorResponse(string JwtToken, int ExpirationTime);
 
 public class AuthTokenProcessor
 {
     public const string AccessTokenCookieName = "ACCESS_TOKEN";
     public const string RefreshTokenCookieName = "REFRESH_TOKEN";
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly JwtOptions _jwtOptions;
 
-    public AuthTokenProcessor(IOptions<JwtOptions> jwtOptions, IHttpContextAccessor httpContextAccessor)
+    public AuthTokenProcessor(IOptions<JwtOptions> jwtOptions)
     {
-        _httpContextAccessor = httpContextAccessor;
         _jwtOptions = jwtOptions.Value;
     }
 
@@ -33,10 +31,10 @@ public class AuthTokenProcessor
 
         Claim[] claims =
         [
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(JwtRegisteredClaimNames.NameId, user.ToString())
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Email, user.Email!),
+            new(JwtRegisteredClaimNames.NameId, user.ToString())
         ];
 
         var expires = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationTimeInMinutes);
@@ -50,7 +48,7 @@ public class AuthTokenProcessor
 
         var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-        return new AuthTokenProcessorResponse(jwtToken, expires);
+        return new AuthTokenProcessorResponse(jwtToken, _jwtOptions.ExpirationTimeInMinutes);
     }
 
     public string GenerateRefreshToken()
@@ -59,17 +57,5 @@ public class AuthTokenProcessor
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
         return Convert.ToBase64String(randomNumber);
-    }
-
-    public void WriteAuthTokenAsHttpCookieOnly(string cookieName, string token, DateTime expiration)
-    {
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append(cookieName, token, new CookieOptions
-        {
-            HttpOnly = true,
-            Expires = expiration,
-            IsEssential = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict
-        });
     }
 }

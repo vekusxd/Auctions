@@ -9,6 +9,8 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors();
+
 builder.Services
     .AddFastEndpoints()
     .SwaggerDocument(opts =>
@@ -20,6 +22,7 @@ builder.Services
             s.Version = "v1";
         };
     });
+
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new Exception("No connection string was found");
@@ -42,22 +45,20 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseOpenApi(c => c.Path = "/openapi/{documentName}.json");    
+    app.UseOpenApi(c => c.Path = "/openapi/{documentName}.json");
     app.MapScalarApiReference();
     app.UseHangfireDashboard();
 }
 
 app.UseHttpsRedirection();
+app.UseCors(policyBuilder => policyBuilder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
 app.UseStaticFiles();
 
 app.UseAuthentication();
-app.UseAuthorization(); 
+app.UseAuthorization();
 
-app.UseFastEndpoints(config =>
-{
-    config.Endpoints.RoutePrefix = "api";
-});
+app.UseFastEndpoints(config => { config.Endpoints.RoutePrefix = "api"; });
 
 app.MapDefaultControllerRoute();
 

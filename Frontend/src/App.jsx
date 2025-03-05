@@ -1,35 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Route, Routes } from "react-router";
+import AppLayout from "./AppLayout.jsx";
+import MyBids from "./MyBids.jsx";
+import MySales from "./MySales.jsx";
+import LotsLayout from "./Auctions/LotsLayout.jsx";
+import Active from "./Auctions/Active.jsx";
+import EndingSoon from "./Auctions/EndingSoon.jsx";
+import NewArrivals from "./Auctions/NewArrivals.jsx";
+import Lots from "./Auctions/ActiveAuctions.jsx";
+import HomePage from "./Home.jsx";
+import Login from "./Auth/Login.jsx";
+import Register from "./Auth/Register.jsx";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => (
+  <Routes>
+    <Route path="/" element={<AppLayout />}>
+      <Route index element={<HomePage />} />
+      <Route path="myBids" element={<MyBids />} />
+      <Route path="mySales" element={<MySales />} />
+      <Route path="auctions" element={<LotsLayout />}>
+        <Route index element={<Lots />} />
+        <Route path="active" element={<Active />} />
+        <Route path="endingSoon" element={<EndingSoon />} />
+        <Route path="newArrivals" element={<NewArrivals />} />
+      </Route>
+    </Route>
+    <Route path="/sign-in" element={<Login />} />
+    <Route path="/sign-up" element={<Register />} />
+  </Routes>
+);
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
-
-export default App
+export default App;

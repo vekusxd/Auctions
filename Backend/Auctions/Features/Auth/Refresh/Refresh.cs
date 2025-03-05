@@ -1,6 +1,7 @@
 ﻿using Auctions.Database;
 using Auctions.Database.Entities;
 using Auctions.Features.Auth.Common.Options;
+using Auctions.Features.Auth.Common.Responses;
 using Auctions.Features.Auth.Common.Services;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -10,7 +11,9 @@ using Microsoft.Extensions.Options;
 
 namespace Auctions.Features.Auth.Refresh;
 
-public class Refresh : EndpointWithoutRequest<Results<Ok, UnauthorizedHttpResult>>
+public record RefreshRequest(string RefreshToken);
+
+public class Refresh : Endpoint<RefreshRequest, Results<Ok<AuthResponse>, UnauthorizedHttpResult>>
 {
     private readonly AppDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -32,9 +35,10 @@ public class Refresh : EndpointWithoutRequest<Results<Ok, UnauthorizedHttpResult
         _jwtOptions = jwtOptions;
     }
 
-    public override async Task<Results<Ok, UnauthorizedHttpResult>> ExecuteAsync(CancellationToken ct)
+    public override async Task<Results<Ok<AuthResponse>, UnauthorizedHttpResult>> ExecuteAsync(RefreshRequest request,
+        CancellationToken ct)
     {
-        var refreshToken = _httpContextAccessor.HttpContext!.Request.Cookies[AuthTokenProcessor.RefreshTokenCookieName];
+        var refreshToken = request.RefreshToken;
 
         if (string.IsNullOrEmpty(refreshToken))
         {
@@ -63,13 +67,8 @@ public class Refresh : EndpointWithoutRequest<Results<Ok, UnauthorizedHttpResult
         user.RefreshTokenExpiresAt = refreshTokenExpirationDate;
 
         await _userManager.UpdateAsync(user);
-
-        _authTokenProcessor.WriteAuthTokenAsHttpCookieOnly(AuthTokenProcessor.AccessTokenCookieName, jwtResult.JwtToken,
-            jwtResult.ExpiresAt);
-        _authTokenProcessor.WriteAuthTokenAsHttpCookieOnly(AuthTokenProcessor.RefreshTokenCookieName, newRefreshToken,
-            refreshTokenExpirationDate);
-
-        return TypedResults.Ok();
+        
+        return TypedResults.Ok(new AuthResponse(jwtResult.JwtToken, newRefreshToken, jwtResult.ExpirationTime));
     }
 
     public override void Configure()

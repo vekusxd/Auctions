@@ -1,5 +1,6 @@
 ﻿using Auctions.Database.Entities;
 using Auctions.Features.Auth.Common.Options;
+using Auctions.Features.Auth.Common.Responses;
 using Auctions.Features.Auth.Common.Services;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -9,10 +10,9 @@ using Microsoft.Extensions.Options;
 namespace Auctions.Features.Auth.Login;
 
 
-//TODO добавить валидацию
 public sealed record LoginRequest(string Email, string Password);
 
-public class Login : Endpoint<LoginRequest, Results<NotFound, UnauthorizedHttpResult, Ok>>
+public class Login : Endpoint<LoginRequest, Results<NotFound, UnauthorizedHttpResult, Ok, Ok<AuthResponse>>>
 {
     private readonly UserManager<User> _userManager;
     private readonly AuthTokenProcessor _authTokenProcessor;
@@ -31,7 +31,7 @@ public class Login : Endpoint<LoginRequest, Results<NotFound, UnauthorizedHttpRe
        AllowAnonymous();
     }
 
-    public override async Task<Results<NotFound, UnauthorizedHttpResult, Ok>> ExecuteAsync(LoginRequest request, CancellationToken ct)
+    public override async Task<Results<NotFound, UnauthorizedHttpResult, Ok, Ok<AuthResponse>>> ExecuteAsync(LoginRequest request, CancellationToken ct)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user == null) return TypedResults.NotFound();
@@ -47,9 +47,6 @@ public class Login : Endpoint<LoginRequest, Results<NotFound, UnauthorizedHttpRe
 
         await _userManager.UpdateAsync(user);
 
-        _authTokenProcessor.WriteAuthTokenAsHttpCookieOnly(AuthTokenProcessor.AccessTokenCookieName, jwtResult.JwtToken, jwtResult.ExpiresAt);
-        _authTokenProcessor.WriteAuthTokenAsHttpCookieOnly(AuthTokenProcessor.RefreshTokenCookieName, refreshToken, refreshTokenExpirationDate);
-
-        return TypedResults.Ok();
+        return TypedResults.Ok(new AuthResponse(jwtResult.JwtToken, refreshToken, jwtResult.ExpirationTime));
     }
 }

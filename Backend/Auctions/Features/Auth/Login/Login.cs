@@ -1,7 +1,7 @@
 ﻿using Auctions.Database.Entities;
-using Auctions.Features.Auth.Common.Options;
-using Auctions.Features.Auth.Common.Responses;
-using Auctions.Features.Auth.Common.Services;
+using Auctions.Features.Auth.Shared.Options;
+using Auctions.Features.Auth.Shared.Responses;
+using Auctions.Features.Auth.Shared.Services;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;

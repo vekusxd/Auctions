@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using Auctions.Database;
 using Auctions.Database.Entities;
-using Auctions.Features.Auth.Common.Options;
-using Auctions.Features.Auth.Common.Services;
+using Auctions.Features.Auth.Shared.Options;
+using Auctions.Features.Auth.Shared.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -51,14 +51,14 @@ public static class AddJwtAuthExtension
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret))
             };
 
-            opts.Events = new JwtBearerEvents
-            {
-                OnMessageReceived = context =>
-                {
-                    context.Token = context.Request.Cookies[AuthTokenProcessor.AccessTokenCookieName];
-                    return Task.CompletedTask;
-                }
-            };
+            // opts.Events = new JwtBearerEvents
+            // {
+            //     OnMessageReceived = context =>
+            //     {
+            //         context.Token = context.Request.Cookies[AuthTokenProcessor.AccessTokenCookieName];
+            //         return Task.CompletedTask;
+            //     }
+            // };
         });
 
         services.AddAuthorization();

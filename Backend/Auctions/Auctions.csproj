@@ -10,7 +10,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CoreAdmin" Version="3.0.0" />
         <PackageReference Include="FastEndpoints" Version="5.34.0" />
         <PackageReference Include="FastEndpoints.Swagger" Version="5.34.0" />
         <PackageReference Include="Hangfire.AspNetCore" Version="1.8.18" />
@@ -23,6 +22,8 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Minio" Version="6.0.4" />
+        <PackageReference Include="Minio.AspNetCore" Version="6.0.1" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
         <PackageReference Include="Scalar.AspNetCore" Version="2.0.18" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.0" />

@@ -3,12 +3,12 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Auctions.Database.Entities;
-using Auctions.Features.Auth.Common.Options;
+using Auctions.Features.Auth.Shared.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
-namespace Auctions.Features.Auth.Common.Services;
+namespace Auctions.Features.Auth.Shared.Services;
 
 public record AuthTokenProcessorResponse(string JwtToken, int ExpirationTime);
 

@@ -9,8 +9,8 @@
       ConnectionString__DefaultConnection: ""
 
     depends_on:
-      - db
-  db:
+      - postgres
+  postgres:
     container_name: auctions_db
     image: postgres
     restart: always
@@ -23,7 +23,7 @@
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  s3Storage:
+  minio:
     image: minio/minio:latest
     ports:
       - "9000:9000"

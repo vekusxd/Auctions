@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Auctions.Database;
 using Auctions.Database.Entities;
 using Auctions.Features.Auctions.Lots.GetLotDetails;
+using Auctions.Features.MinioStorage.MinioUpload;
 using FastEndpoints;
 using Microsoft.AspNetCore.Identity;
 
@@ -14,9 +15,10 @@ public record CreateLotRequest(
     Guid LotCategoryId,
     decimal StartPrice,
     decimal PriceStep,
-    DateTime EndDate
+    DateTime EndDate,
+    string ImgUrl
 );
-
+    
 public record CreateLotResponse(
     Guid Id,
     string Title,
@@ -32,7 +34,7 @@ public class CreateLot : Endpoint<CreateLotRequest, CreateLotResponse, LotMapper
     private readonly AppDbContext _dbContext;
     private readonly UserManager<User> _userManager;
 
-    public CreateLot(AppDbContext dbContext, UserManager<User> userManager)
+    public CreateLot(AppDbContext dbContext, UserManager<User> userManager, MinioUploader minioUploader)
     {
         _dbContext = dbContext;
         _userManager = userManager;
@@ -48,7 +50,7 @@ public class CreateLot : Endpoint<CreateLotRequest, CreateLotResponse, LotMapper
         var lot = Map.ToEntity(request);
         var user = await _userManager.GetUserAsync(User);
         lot.Seller = user!;
-
+        
          _dbContext.Lots.Add(lot);
          await _dbContext.SaveChangesAsync(ct);
 

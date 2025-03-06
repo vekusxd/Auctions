@@ -17,6 +17,7 @@ public class Response
     public decimal CurrentPrice { get; init; }
     public DateTime CreationDate { get; init; }
     public DateTime EndDate { get; init; }
+    public string ImgUrl { get; init; }
 }
 
 public class ResponseMapper : ResponseMapper<List<Response>, List<Lot>>
@@ -33,7 +34,8 @@ public class ResponseMapper : ResponseMapper<List<Response>, List<Lot>>
             PriceStep = lot.PriceStep,
             CurrentPrice = lot.CurrentPrice,
             CreationDate = lot.CreationDate,
-            EndDate = lot.EndDate
+            EndDate = lot.EndDate,
+            ImgUrl = lot.ImgUrl
         }).ToList();
     }
 }

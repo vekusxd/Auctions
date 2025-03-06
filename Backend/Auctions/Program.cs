@@ -9,7 +9,6 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors();
 
 builder.Services
     .AddFastEndpoints()
@@ -23,15 +22,28 @@ builder.Services
         };
     });
 
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new Exception("No connection string was found");
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        corsPolicyBuilder =>
+        {
+            corsPolicyBuilder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetPreflightMaxAge(TimeSpan.FromSeconds(3600));
+        });
+});
 
 builder.Services.AddDbContext<AppDbContext>(opts => opts.UseNpgsql(connectionString));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddJwtAuth(builder.Configuration);
 
-builder.Services.AddCoreAdmin();
+builder.Services.AddMinioStorage(builder.Configuration);
 
 builder.Services.AddHangfire(configuration => configuration
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -50,16 +62,14 @@ if (app.Environment.IsDevelopment())
     app.UseHangfireDashboard();
 }
 
-app.UseHttpsRedirection();
-app.UseCors(policyBuilder => policyBuilder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+app.UseCors("AllowAllOrigins");
 
-app.UseStaticFiles();
+app.UseRouting();
+
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseFastEndpoints(config => { config.Endpoints.RoutePrefix = "api"; });
-
-app.MapDefaultControllerRoute();
-
 app.Run();

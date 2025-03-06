@@ -31,7 +31,8 @@ public class LotMapper : Mapper<CreateLotRequest, CreateLotResponse, Lot>
             UpdatedAt = DateTime.UtcNow,
             CreatedAt = DateTime.UtcNow,
             CurrentPrice = lotRequest.StartPrice,
-            Status = LotStatus.OnModeration
+            Status = LotStatus.OnModeration,
+            ImgUrl = lotRequest.ImgUrl
         };
     }
 }

@@ -7,15 +7,15 @@ const { Title } = Typography;
 
 const items = [
   {
-    label: <Link to={"/auctions"}>Lots</Link>,
+    label: <Link to={"/auctions"}>Лоты</Link>,
     key: "lots",
   },
   {
-    label: <Link to={"/myBids"}>My Bids</Link>,
+    label: <Link to={"/myBids"}>Мои ставки</Link>,
     key: "myBids",
   },
   {
-    label: <Link to={"/mySales"}>My Sales</Link>,
+    label: <Link to={"/mySales"}>Мои продажи</Link>,
     key: "mySales",
   },
 ];
@@ -62,7 +62,7 @@ const AppLayout = () => {
 
         <Flex gap={"small"}>
           <Search
-            placeholder="Search lots..."
+            placeholder="Поиск лотов..."
             allowClear
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -78,10 +78,10 @@ const AppLayout = () => {
             }}
           />
           <Button type={"primary"}>
-            <Link to={"/sign-in"}>Login</Link>{" "}
+            <Link to={"/sign-in"}>Вход</Link>{" "}
           </Button>
           <Button>
-            <Link to={"/sign-up"}>Register</Link>
+            <Link to={"/sign-up"}>Регистрация</Link>
           </Button>
         </Flex>
       </Header>
@@ -110,7 +110,7 @@ const AppLayout = () => {
           textAlign: "center",
         }}
       >
-        Auctions ©{new Date().getFullYear()} Created by Emil Batmanov
+        AuctionHub ©{new Date().getFullYear()} Created by Emil Batmanov
       </Footer>
     </Layout>
   );

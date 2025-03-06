@@ -15,7 +15,7 @@ const ActiveAuctions = () => {
     async function fetchData() {
       const token = getAccessToken();
       const response = await fetch(
-        "https://localhost:7061/api/lots?PageSize=4",
+        "https://localhost:7061/api/lots?PageSize=10",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -35,7 +35,12 @@ const ActiveAuctions = () => {
       <Title level={3}>Active Auctions</Title>
       <Flex wrap gap={"large"}>
         {lots.map((item, index) => (
-          <LotCard key={index} title={item.title} price={item.currentPrice} />
+          <LotCard
+            key={index}
+            title={item.title}
+            price={item.currentPrice}
+            img={item.imgUrl}
+          />
         ))}
       </Flex>
     </>

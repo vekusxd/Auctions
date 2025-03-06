@@ -1,4 +1,4 @@
-﻿namespace Auctions.Features.Auth.Common.Options;
+﻿namespace Auctions.Features.Auth.Shared.Options;
 
 public class JwtOptions
 {

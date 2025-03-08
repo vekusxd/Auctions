@@ -7,7 +7,7 @@ const LotCard = ({ title, price, img }) => (
     style={{
       width: 260,
     }}
-    cover={<img alt="example" src={img} />}
+    cover={<img alt="example" src={img} style={{ height: "30%" }} />}
   >
     <Meta
       title={<div style={{ whiteSpace: "pre-wrap" }}>{title}</div>}

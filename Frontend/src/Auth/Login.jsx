@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 const Login = () => {
   const navigate = useNavigate();
   const onFinish = async (values) => {
-    const result = await fetch("https://localhost:7061/api/account/login", {
+    const result = await fetch("/api/account/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -45,6 +45,8 @@ const Login = () => {
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
           borderRadius: "8px",
           backgroundColor: "#fff",
+          borderBottom: "10px solid blue",
+          borderRight: "10px solid blue",
         }}
       >
         <Form
@@ -72,7 +74,7 @@ const Login = () => {
               {
                 required: true,
                 type: "email",
-                message: "Please input your Email!",
+                message: "Пожалуйста введите ваш email",
               },
             ]}
           >
@@ -80,12 +82,12 @@ const Login = () => {
           </Form.Item>
 
           <Form.Item
-            label="Password"
+            label="Пароль"
             name="Password"
             rules={[
               {
                 required: true,
-                message: "Please input your password!",
+                message: "Пожалуйста введите ваш пароль",
               },
             ]}
           >
@@ -94,7 +96,7 @@ const Login = () => {
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <Button type="primary" htmlType="submit">
-              Login
+              Вход
             </Button>
           </Form.Item>
         </Form>

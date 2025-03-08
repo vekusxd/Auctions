@@ -11,11 +11,12 @@ const ActiveAuctions = () => {
   const search = searchParams.get("search");
   const navigate = useNavigate();
   const [lots, setLots] = useState([]);
+
   useEffect(() => {
     async function fetchData() {
       const token = getAccessToken();
       const response = await fetch(
-        "https://localhost:7061/api/lots?PageSize=10",
+        `/api/lots?PageSize=20${search ? "&search=" + search : ""}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -28,8 +29,8 @@ const ActiveAuctions = () => {
       console.log(json);
     }
     fetchData();
-  }, [navigate]);
-  console.log(search);
+  }, [navigate, search]);
+
   return (
     <>
       <Title level={3}>Active Auctions</Title>

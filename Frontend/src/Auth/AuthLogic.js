@@ -5,7 +5,7 @@ export const getRefreshToken = () => Cookies.get("REFRESH_TOKEN");
 export const isAuthenticated = () => !!getAccessToken();
 
 export const refreshTokens = async () => {
-  const result = await fetch("https://localhost:7061/api/account/refresh", {
+  const result = await fetch("/api/account/refresh", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

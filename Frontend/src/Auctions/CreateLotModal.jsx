@@ -41,7 +41,7 @@ const CreateLotModal = () => {
 
     console.log(JSON.stringify(data));
 
-    const result = await fetch("https://localhost:7061/api/lots", {
+    const result = await fetch("/api/lots", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -79,7 +79,7 @@ const CreateLotModal = () => {
 
   const props = {
     name: "file",
-    action: "https://localhost:7061/api/upload",
+    action: "/api/upload",
     headers: {
       Authorization: "Bearer " + retrieveToken(),
     },
@@ -99,15 +99,11 @@ const CreateLotModal = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       const token = getAccessToken();
-      console.log(token);
-      const result = await fetch(
-        "https://localhost:7061/api/lotCategories?PageSize=30",
-        {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        }
-      );
+      const result = await fetch("/api/lotCategories?PageSize=30", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
       if (result.status === 401) {
         navigate("/sign-in");
       }

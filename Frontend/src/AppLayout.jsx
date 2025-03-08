@@ -24,7 +24,7 @@ const AppLayout = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-  const [currentKey, setCurrentKey] = useState("lots");
+  const [currentKey, setCurrentKey] = useState("");
   const [inputValue, setInputValue] = useState("");
   const navigate = useNavigate();
   return (

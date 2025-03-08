@@ -6,6 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auctions.Features.Auctions.Lots.GetAllLots;
 
+
+public class GetAllLotsRequest : PagingRequest
+{
+    public string? Search { get; set; }
+}
+
 public class Response
 {
     public Guid Id { get; init; }
@@ -40,7 +46,7 @@ public class ResponseMapper : ResponseMapper<List<Response>, List<Lot>>
     }
 }
 
-public class GetAllLots : Endpoint<PagingRequest, List<Response>, ResponseMapper>
+public class GetAllLots : Endpoint<GetAllLotsRequest, List<Response>, ResponseMapper>
 {
     private readonly AppDbContext _dbContext;
 
@@ -54,15 +60,19 @@ public class GetAllLots : Endpoint<PagingRequest, List<Response>, ResponseMapper
         Get("/lots");
     }
 
-    public override async Task HandleAsync(PagingRequest request, CancellationToken ct)
+    public override async Task HandleAsync(GetAllLotsRequest request, CancellationToken ct)
     {
-        var lots = await _dbContext.Lots
+        var lots =  _dbContext.Lots
             .AsNoTracking()
             .Include(l => l.LotCategory)
             .Skip((request.PageNumber - 1) * request.PageSize)
-            .Take(request.PageSize)
-            .ToListAsync(ct);
+            .Take(request.PageSize);
 
-        Response = Map.FromEntity(lots);
+        if (request.Search != null)
+        {
+            lots = lots.Where(l => l.Title.ToLower().Contains(request.Search.ToLower()));
+        }
+
+        Response = Map.FromEntity(await lots.ToListAsync(ct));
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Auctions.Features.Shared.Requests;
 
-public record PagingRequest(
-    [property: QueryParam] int PageSize = 5,
-    [property: QueryParam] int PageNumber = 1);
+public class PagingRequest()
+{
+    [QueryParam] public int PageSize { get; init; } = 5;
+    [QueryParam] public int PageNumber { get; init; } = 1;
+}

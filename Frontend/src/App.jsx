@@ -3,7 +3,6 @@ import AppLayout from "./AppLayout.jsx";
 import MyBids from "./MyBids.jsx";
 import MySales from "./MySales.jsx";
 import LotsLayout from "./Auctions/LotsLayout.jsx";
-import Active from "./Auctions/Active.jsx";
 import EndingSoon from "./Auctions/EndingSoon.jsx";
 import NewArrivals from "./Auctions/NewArrivals.jsx";
 import Lots from "./Auctions/ActiveAuctions.jsx";
@@ -19,7 +18,7 @@ const App = () => (
       <Route path="mySales" element={<MySales />} />
       <Route path="auctions" element={<LotsLayout />}>
         <Route index element={<Lots />} />
-        <Route path="active" element={<Active />} />
+        <Route path="active" element={<Lots />} />
         <Route path="endingSoon" element={<EndingSoon />} />
         <Route path="newArrivals" element={<NewArrivals />} />
       </Route>

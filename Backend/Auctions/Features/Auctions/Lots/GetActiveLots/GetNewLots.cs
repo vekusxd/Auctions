@@ -6,42 +6,31 @@ using Auctions.Features.Shared.Requests;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
-namespace Auctions.Features.Auctions.Lots.GetAllLots;
+namespace Auctions.Features.Auctions.Lots.GetActiveLots;
 
-public class GetAllLotsRequest : PagingRequest
-{
-    public string? Search { get; set; }
-}
-
-
-
-public class GetAllLots : Endpoint<GetAllLotsRequest, List<LotResponse>, LotResponseMapper>
+public class GetNewLots : Endpoint<PagingRequest, List<LotResponse>, LotResponseMapper>
 {
     private readonly AppDbContext _dbContext;
 
-    public GetAllLots(AppDbContext dbContext)
+    public GetNewLots(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }
-
+    
     public override void Configure()
     {
-        Get("/lots");
+        Get("/lots/active");
     }
 
-    public override async Task HandleAsync(GetAllLotsRequest request, CancellationToken ct)
+    public override async  Task HandleAsync(PagingRequest request, CancellationToken ct)
     {
         var lots = _dbContext.Lots
             .AsNoTracking()
+            .OrderByDescending(l => l.CreationDate)
             .Include(l => l.LotCategory)
             .Include(l => l.Bids)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize);
-
-        if (request.Search != null)
-        {
-            lots = lots.Where(l => l.Title.ToLower().Contains(request.Search.ToLower()));
-        }
 
         Response = Map.FromEntity(await lots.ToListAsync(ct));
     }

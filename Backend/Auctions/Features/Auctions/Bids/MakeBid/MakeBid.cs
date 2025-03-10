@@ -11,7 +11,7 @@ public record MakeBidRequest(
     Guid LotId
 );
 
-public class MakeBid : Endpoint<MakeBidRequest, Results<Ok, NotFound, BadRequest<string>>>
+public class MakeBid : Endpoint<MakeBidRequest, Results<Ok, NotFound, BadRequest, Conflict>>
 {
     private readonly AppDbContext _dbContext;
     private readonly UserManager<User> _userManager;
@@ -27,17 +27,24 @@ public class MakeBid : Endpoint<MakeBidRequest, Results<Ok, NotFound, BadRequest
         Post("/bid");
     }
 
-    public override async Task<Results<Ok, NotFound, BadRequest<string>>> ExecuteAsync(MakeBidRequest request,
+    public override async Task<Results<Ok, NotFound, BadRequest, Conflict>> ExecuteAsync(MakeBidRequest request,
         CancellationToken ct)
     {
-        var lot = await _dbContext.Lots.FirstOrDefaultAsync(l => l.Id == request.LotId, ct);
+        var lot = await _dbContext.Lots
+            .Include(l => l.Bids)
+            .ThenInclude(b => b.Bidder)
+            .FirstOrDefaultAsync(l => l.Id == request.LotId, ct);
 
         if (lot == null) return TypedResults.NotFound();
 
         var user = await _userManager.GetUserAsync(User);
 
-        if (user!.Id == lot.SellerId) return TypedResults.BadRequest("Bid from the seller is not allowed!");
+        if (user!.Id == lot.SellerId) return TypedResults.Conflict();
 
+        var lastBidder = lot.Bids.OrderBy(b => b.CreationDate).LastOrDefault();
+
+        if (lastBidder != null && lastBidder.BidderId == user!.Id) return TypedResults.BadRequest();
+        
         var bid = new Bid
             { Amount = lot.CurrentPrice + lot.PriceStep, Lot = lot, Bidder = user!, CreationDate = DateTime.UtcNow };
         _dbContext.Bids.Add(bid);

@@ -75,8 +75,9 @@ const AppLayout = () => {
                 }).toString(),
               });
               setInputValue("");
-            }}
+            }}                                    
           />
+
           <Button type={"primary"}>
             <Link to={"/sign-in"}>Вход</Link>{" "}
           </Button>

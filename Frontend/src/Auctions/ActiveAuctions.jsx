@@ -12,35 +12,51 @@ const ActiveAuctions = () => {
   const navigate = useNavigate();
   const [lots, setLots] = useState([]);
 
+  const updateLot = (id, newPrice, newBidCount) => {
+    setLots(
+      lots.map((l) => {
+        if (l.id === id) {
+          return { ...l, currentPrice: newPrice, numberOfBids: newBidCount };
+        } else {
+          return l;
+        }
+      })
+    );
+  };
+
   useEffect(() => {
     async function fetchData() {
       const token = getAccessToken();
-      const response = await fetch(
-        `/api/lots?PageSize=20${search ? "&search=" + search : ""}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const searchParams = new URLSearchParams();
+      searchParams.append("PageSize", "20");
+      searchParams.append("search", search ?? "");
+
+      const response = await fetch(`/api/lots?${searchParams.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (response.status === 401) {
         navigate("/sign-in");
       }
       const json = await response.json();
       setLots(json);
-      console.log(json);
     }
     fetchData();
   }, [navigate, search]);
 
   return (
     <>
-      <Title level={3}>Active Auctions</Title>
+      <Title level={3}>Активные аукционы</Title>
       <Flex wrap gap={"large"}>
         {lots.map((item, index) => (
           <LotCard
             key={index}
+            id={item.id}
             title={item.title}
             price={item.currentPrice}
             img={item.imgUrl}
+            updateLot={updateLot}
+            step={item.priceStep}
+            bidsCount={item.numberOfBids}
           />
         ))}
       </Flex>

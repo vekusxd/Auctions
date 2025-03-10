@@ -20,6 +20,7 @@ public record GetLotDetailsResponse(
     DateTime CreationDate,
     DateTime EndDate,
     UserResponse Seller,
+    string ImgUrl,
     ICollection<BidResponse> Bids);
 
 public record UserResponse(Guid Id, string Email, string Name);

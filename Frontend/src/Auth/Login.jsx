@@ -31,77 +31,57 @@ const Login = () => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
+    <Form
+      name="basic"
+      labelCol={{
+        span: 8,
       }}
+      wrapperCol={{
+        span: 16,
+      }}
+      style={{
+        maxWidth: 600,
+      }}
+      initialValues={{
+        remember: true,
+      }}
+      onFinish={onFinish}
+      onFinishFailed={onFinishFailed}
+      autoComplete="off"
     >
-      <div
-        style={{
-          padding: "3rem",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-          borderRadius: "8px",
-          backgroundColor: "#fff",
-          borderBottom: "10px solid blue",
-          borderRight: "10px solid blue",
-        }}
+      <Form.Item
+        label="Email"
+        name="Email"
+        rules={[
+          {
+            required: true,
+            type: "email",
+            message: "Пожалуйста введите ваш email",
+          },
+        ]}
       >
-        <Form
-          name="basic"
-          labelCol={{
-            span: 8,
-          }}
-          wrapperCol={{
-            span: 16,
-          }}
-          style={{
-            maxWidth: 400,
-          }}
-          initialValues={{
-            remember: true,
-          }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-          autoComplete="off"
-        >
-          <Form.Item
-            label="Email"
-            name="Email"
-            rules={[
-              {
-                required: true,
-                type: "email",
-                message: "Пожалуйста введите ваш email",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
+        <Input />
+      </Form.Item>
 
-          <Form.Item
-            label="Пароль"
-            name="Password"
-            rules={[
-              {
-                required: true,
-                message: "Пожалуйста введите ваш пароль",
-              },
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
+      <Form.Item
+        label="Пароль"
+        name="Password"
+        rules={[
+          {
+            required: true,
+            message: "Пожалуйста введите ваш пароль",
+          },
+        ]}
+      >
+        <Input.Password />
+      </Form.Item>
 
-          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="primary" htmlType="submit">
-              Вход
-            </Button>
-          </Form.Item>
-        </Form>
-      </div>
-    </div>
+      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+        <Button type="primary" htmlType="submit">
+          Вход
+        </Button>
+      </Form.Item>
+    </Form>
   );
 };
 export default Login;

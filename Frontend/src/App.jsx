@@ -9,6 +9,8 @@ import Lots from "./Auctions/ActiveAuctions.jsx";
 import HomePage from "./Home.jsx";
 import Login from "./Auth/Login.jsx";
 import Register from "./Auth/Register.jsx";
+import AuthLayout from "./Auth/AuthLayout.jsx";
+import LotDetails from "./Auctions/LotDetails.jsx";
 
 const App = () => (
   <Routes>
@@ -21,10 +23,13 @@ const App = () => (
         <Route path="active" element={<Lots />} />
         <Route path="endingSoon" element={<EndingSoon />} />
         <Route path="newArrivals" element={<NewArrivals />} />
+        <Route path=":id" element={<LotDetails />} />
       </Route>
     </Route>
-    <Route path="/sign-in" element={<Login />} />
-    <Route path="/sign-up" element={<Register />} />
+    <Route element={<AuthLayout />}>
+      <Route path="/sign-in" element={<Login />} />
+      <Route path="/sign-up" element={<Register />} />
+    </Route>
   </Routes>
 );
 

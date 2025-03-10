@@ -47,15 +47,6 @@ const CreateLotModal = () => {
         "Content-Type": "application/json",
         Authorization: "Bearer " + retrieveToken(),
       },
-      // body: JSON.stringify({
-      //   Title: data.Title,
-      //   Description: data.Description,
-      //   LotCategoryId: data.LotCategoryId,
-      //   StartPrice: data.StartPrice,
-      //   PriceStep: data.PriceStep,
-      //   EndDate: data.EndDate,
-      //   ImgUrl: data.ImgUrl,
-      // }),
       body: JSON.stringify(data),
     });
 

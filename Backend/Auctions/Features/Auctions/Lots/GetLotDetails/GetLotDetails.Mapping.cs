@@ -20,6 +20,7 @@ public class LotDetailsMapper : ResponseMapper<GetLotDetailsResponse, Lot>
             CreationDate: lot.CreationDate,
             EndDate: lot.EndDate,
             Seller: new UserResponse(lot.SellerId, lot.Seller.Email!, lot.Seller.ToString()),
+            ImgUrl: lot.ImgUrl,
             Bids: lot.Bids.Select(b => new BidResponse(b.Id, b.Amount, b.CreationDate,
                 new UserResponse(b.BidderId, b.Bidder.Email!, b.Bidder.ToString()))).ToList()
         );

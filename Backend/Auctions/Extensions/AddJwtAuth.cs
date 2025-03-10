@@ -50,15 +50,7 @@ public static class AddJwtAuthExtension
                 ValidAudience = jwtOptions.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret))
             };
-
-            // opts.Events = new JwtBearerEvents
-            // {
-            //     OnMessageReceived = context =>
-            //     {
-            //         context.Token = context.Request.Cookies[AuthTokenProcessor.AccessTokenCookieName];
-            //         return Task.CompletedTask;
-            //     }
-            // };
+            
         });
 
         services.AddAuthorization();

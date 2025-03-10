@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Minio;
 using Minio.DataModel.Args;
 using System.Net.Mime;
+using Auctions.Features.ImageModeration;
 
 namespace Auctions.Features.MinioStorage.MinioUpload;
 
@@ -15,12 +16,15 @@ public record MinioUploaderResponse(string Url);
 public class MinioUploader : Endpoint<MinioUploaderRequest, Results<Ok<MinioUploaderResponse>, BadRequest<string>>>
 {
     private readonly IMinioClient _minioClient;
+    private readonly IImageModeration _imageModeration;
     private readonly MinioOptions _minioOptions;
 
-    public MinioUploader(IMinioClient minioClient, IOptions<MinioOptions> minioOptions)
+    public MinioUploader(IMinioClient minioClient, IOptions<MinioOptions> minioOptions,
+        IImageModeration imageModeration)
     {
         _minioOptions = minioOptions.Value;
         _minioClient = minioClient;
+        _imageModeration = imageModeration;
     }
 
     public override void Configure()
@@ -39,6 +43,7 @@ public class MinioUploader : Endpoint<MinioUploaderRequest, Results<Ok<MinioUplo
             contentType != MediaTypeNames.Image.Webp)
             return TypedResults.BadRequest("Unsupported image format");
 
+
         var objectName = $"{Guid.NewGuid()}.{Path.GetExtension(req.File.FileName)}";
 
         try
@@ -53,7 +58,13 @@ public class MinioUploader : Endpoint<MinioUploaderRequest, Results<Ok<MinioUplo
 
             using var fileStream = new MemoryStream();
             await req.File.CopyToAsync(fileStream, ct);
+
             var fileBytes = fileStream.ToArray();
+
+            var canUpload = await _imageModeration.CheckImage(new MemoryStream(fileBytes), objectName, contentType, ct);
+
+            if (!canUpload) return TypedResults.BadRequest("Can`t upload this image");
+
             var putObjectArgs = new PutObjectArgs()
                 .WithBucket(bucketName)
                 .WithObject(objectName)

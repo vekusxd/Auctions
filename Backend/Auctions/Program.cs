@@ -41,9 +41,10 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContext<AppDbContext>(opts => opts.UseNpgsql(connectionString));
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddJwtAuth(builder.Configuration);
 
+builder.Services.AddJwtAuth(builder.Configuration);
 builder.Services.AddMinioStorage(builder.Configuration);
+builder.Services.AddAddSignEngine(builder.Configuration);
 
 builder.Services.AddHangfire(configuration => configuration
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)

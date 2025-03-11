@@ -1,14 +1,16 @@
 import { Flex, Typography } from "antd";
 import { useNavigate } from "react-router";
-import { useEffect, useState } from "react";
-import { getAccessToken } from "../Auth/AuthLogic";
+import { useEffect, useState, useContext } from "react";
 import LotCard from "./LotCard";
+import { AuthContext } from "../Auth/AuthContext";
+import CenterSpinner from "../CenterSpinner";
 
 const { Title } = Typography;
 
 const NewArrivals = () => {
   const navigate = useNavigate();
   const [lots, setLots] = useState([]);
+  const { accessToken, tryRefresh } = useContext(AuthContext);
 
   const updateLot = (id, newPrice, newBidCount) => {
     setLots(
@@ -24,7 +26,15 @@ const NewArrivals = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const token = getAccessToken();
+      let token = accessToken;
+
+      if (!token) {
+        token = await tryRefresh();
+        if (!token) {
+          navigate("/sign-in");
+          return;
+        }
+      }
 
       const response = await fetch("/api/lots/active", {
         headers: { Authorization: `Bearer ${token}` },
@@ -36,7 +46,11 @@ const NewArrivals = () => {
       setLots(json);
     }
     fetchData();
-  }, [navigate]);
+  }, [accessToken, navigate, tryRefresh]);
+
+  if (!lots.length) {
+    return <CenterSpinner />;
+  }
 
   return (
     <>

@@ -1,30 +1,19 @@
 import { Button, Form, Input } from "antd";
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router";
+import { AuthContext } from "./AuthContext";
+import { useContext } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
+
   const onFinish = async (values) => {
-    const result = await fetch("/api/account/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-    if (result.status !== 200) {
-      navigate("/sign-up");
-      return;
+    const result = await login(values);
+    if (!result) {
+      navigate("/sign-in");
+    } else {
+      navigate("/");
     }
-    const tokens = await result.json();
-
-    const expires = (tokens.expiresIn * 60 || 15 * 60) * 1000;
-    const expiresIn = new Date(new Date().getTime() + expires);
-
-    Cookies.set("ACCESS_TOKEN", tokens.accessToken, { expires: expiresIn });
-    Cookies.set("REFRESH_TOKEN", tokens.refreshToken);
-
-    navigate("/");
   };
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);

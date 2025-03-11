@@ -9,15 +9,10 @@ import {
   Select,
   message,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UploadOutlined } from "@ant-design/icons";
-import { getAccessToken } from "../Auth/AuthLogic";
 import { useNavigate } from "react-router";
-
-const retrieveToken = () => {
-  const token = getAccessToken();
-  return token;
-};
+import { AuthContext } from "../Auth/AuthContext";
 
 const CreateLotModal = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +20,7 @@ const CreateLotModal = () => {
   const [imageUrl, setImageUrl] = useState("");
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const { accessToken, tryRefresh } = useContext(AuthContext);
 
   const onFinish = async (values) => {
     const utcDate = new Date(Date.parse(values.EndDate)).toISOString();
@@ -37,15 +33,21 @@ const CreateLotModal = () => {
       data.Description = "";
     }
 
-    console.log(data);
+    let token = accessToken;
 
-    console.log(JSON.stringify(data));
+    if (!token) {
+      token = tryRefresh();
+      if (!token) {
+        navigate("/sign-in");
+        return;
+      }
+    }
 
     const result = await fetch("/api/lots", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + retrieveToken(),
+        Authorization: "Bearer " + accessToken,
       },
       body: JSON.stringify(data),
     });
@@ -60,8 +62,6 @@ const CreateLotModal = () => {
       form.resetFields();
       setIsModalOpen(false);
       setImageUrl("");
-      const json = await result.json();
-      console.log(json);
     }
   };
   const onFinishFailed = (errorInfo) => {
@@ -72,7 +72,7 @@ const CreateLotModal = () => {
     name: "file",
     action: "/api/upload",
     headers: {
-      Authorization: "Bearer " + retrieveToken(),
+      Authorization: "Bearer " + accessToken,
     },
     onChange(info) {
       if (info.file.status !== "uploading") {
@@ -89,7 +89,16 @@ const CreateLotModal = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const token = getAccessToken();
+      let token = accessToken;
+
+      if (!token) {
+        token = await tryRefresh();
+        if (!token) {
+          navigate("/sign-in");
+          return;
+        }
+      }
+
       const result = await fetch("/api/lotCategories?PageSize=30", {
         headers: {
           Authorization: "Bearer " + token,
@@ -105,7 +114,7 @@ const CreateLotModal = () => {
       setCategories(data);
     };
     fetchCategories();
-  }, [navigate]);
+  }, [accessToken, navigate, tryRefresh]);
 
   const showModal = () => {
     setIsModalOpen(true);

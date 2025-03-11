@@ -1,8 +1,9 @@
 import { Flex, Typography } from "antd";
 import { useNavigate, useSearchParams } from "react-router";
-import { useEffect, useState } from "react";
-import { getAccessToken } from "../Auth/AuthLogic";
+import { useEffect, useState, useContext } from "react";
 import LotCard from "./LotCard";
+import { AuthContext } from "../Auth/AuthContext";
+import CenterSpinner from "../CenterSpinner";
 
 const { Title } = Typography;
 
@@ -11,6 +12,7 @@ const ActiveAuctions = () => {
   const search = searchParams.get("search");
   const navigate = useNavigate();
   const [lots, setLots] = useState([]);
+  const { accessToken, tryRefresh } = useContext(AuthContext);
 
   const updateLot = (id, newPrice, newBidCount) => {
     setLots(
@@ -26,7 +28,16 @@ const ActiveAuctions = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const token = getAccessToken();
+      let token = accessToken;
+
+      if (!token) {
+        token = await tryRefresh();
+        if (!token) {
+          navigate("/sign-in");
+          return;
+        }
+      }
+
       const searchParams = new URLSearchParams();
       searchParams.append("PageSize", "20");
       searchParams.append("search", search ?? "");
@@ -41,7 +52,11 @@ const ActiveAuctions = () => {
       setLots(json);
     }
     fetchData();
-  }, [navigate, search]);
+  }, [accessToken, navigate, search, tryRefresh]);
+
+  if (!lots.length) {
+    return <CenterSpinner />;
+  }
 
   return (
     <>

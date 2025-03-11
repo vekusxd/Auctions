@@ -1,59 +1,64 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router";
-import { getAccessToken } from "../Auth/AuthLogic";
+import { AuthContext } from "../Auth/AuthContext";
 import { Flex, Typography, Image, Button, message } from "antd";
+import { useNavigate } from "react-router";
+import CenterSpinner from "../CenterSpinner";
 
 const { Text, Title } = Typography;
 
 const LotDetails = () => {
   const { id } = useParams();
   const [lot, setLot] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { accessToken, tryRefresh } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = getAccessToken();
-    const abortController = new AbortController();
+    console.log("useEffect triggered"); // Проверка, что useEffect вызывается
 
-    const fetchLotDetails = async () => {
+    async function fetchLotDetails() {
       try {
+        console.log("Fetching lot details..."); // Проверка, что функция вызывается
+        let token = accessToken;
+
+        if (!token) {
+          console.log("No token, trying to refresh...");
+          token = await tryRefresh();
+          if (!token) {
+            console.log("Refresh failed, redirecting to sign-in");
+            navigate("/sign-in");
+            return;
+          }
+        }
+
+        console.log("Token:", token); // Проверка токена
         const response = await fetch(`/api/lots/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
-          signal: abortController.signal,
         });
 
+        if (response.status === 401) {
+          console.log("Unauthorized, redirecting to sign-in");
+          navigate("/sign-in");
+          return;
+        }
+
         if (!response.ok) {
-          throw new Error(`Ошибка запроса: ${response.statusText}`);
+          throw new Error("Failed to fetch lot details");
         }
 
         const json = await response.json();
+        console.log("Lot details:", json); // Проверка данных
         setLot(json);
       } catch (error) {
-        if (error.name !== "AbortError") {
-          setError(error.message);
-        }
-      } finally {
-        setLoading(false);
+        console.error("Error fetching lot details:", error);
       }
-    };
+    }
 
     fetchLotDetails();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [id]);
-
-  if (loading) {
-    return <div>Загрузка...</div>;
-  }
-
-  if (error) {
-    return <div>Ошибка: {error}</div>;
-  }
+  }, [accessToken, id, navigate, tryRefresh]);
 
   if (!lot) {
-    return <div>Лот не найден</div>;
+    return <CenterSpinner />;
   }
 
   return (
@@ -77,11 +82,20 @@ const LotDetails = () => {
           onClick={async (e) => {
             e.stopPropagation();
             e.preventDefault();
+            let token = accessToken;
+
+            if (!token) {
+              token = await tryRefresh();
+              if (!token) {
+                navigate("/sign-in");
+                return;
+              }
+            }
             const result = await fetch("/api/bid", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${getAccessToken()}`,
+                Authorization: `Bearer: ${token}`,
               },
               body: JSON.stringify({
                 LotId: id,

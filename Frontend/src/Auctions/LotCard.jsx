@@ -1,22 +1,26 @@
-import { Card, Typography, Flex, Button, message } from "antd";
+import { Card, Typography, Flex, Button, message, Image } from "antd";
 import PropTypes from "prop-types";
-import { Link } from "react-router";
-import { getAccessToken } from "../Auth/AuthLogic";
+import { Link, useNavigate } from "react-router";
+import { AuthContext } from "../Auth/AuthContext";
+import { useContext } from "react";
+
 const { Meta } = Card;
 
 const { Title, Text } = Typography;
 
 const LotCard = ({ id, title, price, img, updateLot, step, bidsCount }) => {
+  const { accessToken, tryRefresh } = useContext(AuthContext);
+  const navigate = useNavigate();
   return (
-    <Link to={`/auctions/${id}`}>
-      <Card
-        hoverable
-        style={{
-          width: 325,
-          height: 400,
-        }}
-        cover={<img alt="example" src={img} style={{ height: 250 }} />}
-      >
+    <Card
+      hoverable
+      style={{
+        width: 325,
+        height: 425,
+      }}
+      cover={<Image alt="example" src={img} width={325} height={250} />}
+    >
+      <Link to={`/auctions/${id}`}>
         <Meta
           title={<div style={{ whiteSpace: "pre-wrap" }}>{title}</div>}
           description={
@@ -51,11 +55,22 @@ const LotCard = ({ id, title, price, img, updateLot, step, bidsCount }) => {
                 onClick={async (e) => {
                   e.stopPropagation();
                   e.preventDefault();
+
+                  let token = accessToken;
+
+                  if (!token) {
+                    token = tryRefresh();
+                    if (!token) {
+                      navigate("/sign-in");
+                      return;
+                    }
+                  }
+
                   const result = await fetch("/api/bid", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
-                      Authorization: `Bearer ${getAccessToken()}`,
+                      Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
                       LotId: id,
@@ -82,8 +97,8 @@ const LotCard = ({ id, title, price, img, updateLot, step, bidsCount }) => {
             </Flex>
           }
         />
-      </Card>
-    </Link>
+      </Link>
+    </Card>
   );
 };
 export default LotCard;

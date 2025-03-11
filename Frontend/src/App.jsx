@@ -23,7 +23,7 @@ const App = () => (
         <Route path="active" element={<Lots />} />
         <Route path="endingSoon" element={<EndingSoon />} />
         <Route path="newArrivals" element={<NewArrivals />} />
-        <Route path=":id" element={<LotDetails />} />
+        <Route path=":id" element={<LotDetails  />} />
       </Route>
     </Route>
     <Route element={<AuthLayout />}>

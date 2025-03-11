@@ -4,6 +4,8 @@ import { Outlet, Link, useNavigate, createSearchParams } from "react-router";
 const { Header, Content, Footer } = Layout;
 const { Search } = Input;
 const { Title } = Typography;
+import { AuthContext } from "./Auth/AuthContext";
+import { useContext } from "react";
 
 const items = [
   {
@@ -27,6 +29,8 @@ const AppLayout = () => {
   const [currentKey, setCurrentKey] = useState("");
   const [inputValue, setInputValue] = useState("");
   const navigate = useNavigate();
+  const { isLoggedIn, logOut } = useContext(AuthContext);
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -75,15 +79,32 @@ const AppLayout = () => {
                 }).toString(),
               });
               setInputValue("");
-            }}                                    
+            }}
           />
 
-          <Button type={"primary"}>
-            <Link to={"/sign-in"}>Вход</Link>{" "}
-          </Button>
-          <Button>
-            <Link to={"/sign-up"}>Регистрация</Link>
-          </Button>
+          <>
+            {isLoggedIn ? (
+              <Button
+                type={"primary"}
+                onClick={() => {
+                  logOut();
+                  navigate("/");
+                  return;
+                }}
+              >
+                Выход
+              </Button>
+            ) : (
+              <>
+                <Button type="primary">
+                  <Link to="/sign-in">Вход</Link>
+                </Button>
+                <Button>
+                  <Link to="/sign-up">Регистрация</Link>
+                </Button>
+              </>
+            )}
+          </>
         </Flex>
       </Header>
       <Content

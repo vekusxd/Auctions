@@ -11,7 +11,7 @@ import {
 } from "./AuthHelpers";
 
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(getAccessTokenHelper() != null);
   const [accessToken, setAccessToken] = useState(
     getAccessTokenHelper() || null
   );
@@ -88,6 +88,7 @@ export const AuthProvider = ({ children }) => {
       refreshSubscribers.current = [];
 
       isRefreshing.current = false;
+      setIsLoggedIn(true);
       return access;
     }
 

@@ -9,14 +9,14 @@ import {
   Select,
   message,
 } from "antd";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import { AuthContext } from "../Auth/AuthContext";
+import PropTypes from "prop-types";
 
-const CreateLotModal = () => {
+const CreateLotModal = ({ categories }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [categories, setCategories] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -86,35 +86,6 @@ const CreateLotModal = () => {
       }
     },
   };
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      let token = accessToken;
-
-      if (!token) {
-        token = await tryRefresh();
-        if (!token) {
-          navigate("/sign-in");
-          return;
-        }
-      }
-
-      const result = await fetch("/api/lotCategories?PageSize=30", {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (result.status === 401) {
-        navigate("/sign-in");
-      }
-      const json = await result.json();
-      const data = json.map((item) => {
-        return { value: item.id, label: item.title };
-      });
-      setCategories(data);
-    };
-    fetchCategories();
-  }, [accessToken, navigate, tryRefresh]);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -264,3 +235,7 @@ const CreateLotModal = () => {
   );
 };
 export default CreateLotModal;
+
+CreateLotModal.propTypes = {
+  categories: PropTypes.array,
+};

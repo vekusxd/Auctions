@@ -18,8 +18,14 @@ public class QueryLotsRequest
     [QueryParam] public SortDirection? SortDirection { get; init; }
 }
 
+public class QueryLotsResponse
+{
+    public required IEnumerable<LotResponse> Data { get; init; }
+    public required int TotalItems { get; init; }
+}
+
 public class QueryLots :
-    Endpoint<QueryLotsRequest, IEnumerable<LotResponse>, LotResponseMapper>
+    Endpoint<QueryLotsRequest, QueryLotsResponse, LotResponseMapper>
 {
     private readonly AppDbContext _dbContext;
 
@@ -33,16 +39,22 @@ public class QueryLots :
         Get("/lots");
     }
 
-    public override async Task HandleAsync(QueryLotsRequest req, CancellationToken ct)
+    public override async Task HandleAsync(QueryLotsRequest request, CancellationToken ct)
     {
-        var lots = _dbContext.Lots
+        var lotsQuery = _dbContext.Lots
             .AsNoTracking()
-            .Sort(req.SortDirection)
-            .Filter(req.Title, req.CategoryId, req.PageSize ?? 20, req.PageNumber ?? 1)
-            .Include(l => l.LotCategory)
-            .Include(l => l.Bids);
+            .Sort(request.SortDirection)
+            .Filter(request.Title, request.CategoryId);
 
-        Response = Map.FromEntity(await lots.ToListAsync(ct));
+        var totalCount = await lotsQuery.CountAsync(ct);
+
+        var items = await lotsQuery
+            .Page(request.PageNumber ?? 1, request.PageSize ?? 10)
+            .Include(l => l.LotCategory)
+            .Include(l => l.Bids)
+            .ToListAsync(ct);
+
+        Response = new QueryLotsResponse { TotalItems = totalCount, Data = Map.FromEntity(items) };
     }
 }
 
@@ -51,9 +63,7 @@ public static class LotExtension
     public static IQueryable<Lot> Filter(
         this IQueryable<Lot> lots,
         string? title,
-        string? categoryId,
-        int pageSize,
-        int pageNumber)
+        string? categoryId)
     {
         if (!string.IsNullOrEmpty(title))
             lots = lots.Where(l => l.Title.ToLower().Contains(title.ToLower()));
@@ -61,9 +71,7 @@ public static class LotExtension
         if (!string.IsNullOrEmpty(categoryId))
             lots = lots.Where(l => l.LotCategory.Id.ToString() == categoryId);
 
-        return lots
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize);
+        return lots;
     }
 
     public static IQueryable<Lot> Sort(this IQueryable<Lot> lots, SortDirection? sortDirection)
@@ -74,6 +82,13 @@ public static class LotExtension
         return sortDirection == SortDirection.Ascending
             ? lots.OrderBy(l => l.CreationDate)
             : lots.OrderByDescending(l => l.CreationDate);
+    }
+
+    public static IQueryable<Lot> Page(this IQueryable<Lot> lots, int pageNumber, int pageSize)
+    {
+        return lots
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize);
     }
 }
 
